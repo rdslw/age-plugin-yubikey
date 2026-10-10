@@ -11,6 +11,9 @@ on:
         required: true
         default: 'true'
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Publish for ${{ matrix.name }}
