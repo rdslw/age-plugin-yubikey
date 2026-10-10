@@ -24,7 +24,7 @@ jobs:
           - windows
         include:
           - name: linux
-            os: ubuntu-20.04
+            os: ubuntu-24.04
             build_deps: >
               libpcsclite-dev
             archive_name: age-plugin-yubikey.tar.gz
@@ -44,6 +44,8 @@ jobs:
 
           - name: macos-x86_64
             os: macos-latest
+            target: x86_64-apple-darwin
+            build_flags: --target x86_64-apple-darwin
             archive_name: age-plugin-yubikey.tar.gz
             asset_suffix: x86_64-darwin.tar.gz
 
@@ -57,7 +59,7 @@ jobs:
         if: matrix.target != ''
 
       - name: Install linux build dependencies
-        run: sudo apt install ${{ matrix.build_deps }}
+        run: sudo apt-get update && sudo apt-get install -y ${{ matrix.build_deps }}
         if: matrix.build_deps != ''
 
       - name: Set up .cargo/config
@@ -90,63 +92,5 @@ jobs:
         with:
           file: ${{ matrix.archive_name }}
           asset_name: age-plugin-yubikey-$tag-${{ matrix.asset_suffix }}
-          prerelease: true
-        if: github.event.inputs.test != 'true'
-
-  deb:
-    name: Debian ${{ matrix.name }}
-    runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        name: [linux]
-        include:
-          - name: linux
-            target: x86_64-unknown-linux-gnu
-            build_deps: >
-              libpcsclite-dev
-
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        id: toolchain
-      - run: rustup override set ${{steps.toolchain.outputs.name}}
-      - name: Add target
-        run: rustup target add ${{ matrix.target }}
-      - name: cargo install cargo-deb
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: cargo-deb
-
-      - name: Install build dependencies
-        run: sudo apt install ${{ matrix.build_deps }}
-        if: matrix.build_deps != ''
-
-      - name: Set up .cargo/config
-        run: |
-          mkdir .cargo
-          echo '${{ matrix.cargo_config }}' >.cargo/config
-        if: matrix.cargo_config != ''
-
-      - name: cargo build
-        run: cargo build --release --locked --target ${{ matrix.target }} ${{ matrix.build_flags }}
-
-      - name: Generate manpages
-        uses: actions-rs/cargo@v1
-        with:
-          command: run
-          args: --example generate-docs
-
-      - name: cargo deb
-        uses: actions-rs/cargo@v1
-        with:
-          command: deb
-          args: --package age-plugin-yubikey --no-build --target ${{ matrix.target }}
-
-      - name: Upload Debian package to release
-        uses: svenstaro/upload-release-action@2.9.0
-        with:
-          file: target/${{ matrix.target }}/debian/*.deb
-          file_glob: true
-          prerelease: true
+          prerelease: false
         if: github.event.inputs.test != 'true'
