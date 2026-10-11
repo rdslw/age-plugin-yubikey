@@ -62,3 +62,5 @@ which = "5"
 [patch.crates-io]
 age-core = { git = "https://github.com/str4d/rage.git", rev = "e08c450aa5d7b1cc5706094080c0042ddd60aaf7" }
 age-plugin = { git = "https://github.com/str4d/rage.git", rev = "e08c450aa5d7b1cc5706094080c0042ddd60aaf7" }
+# yubikey 0.8.0-pre.0 + Key::list skipping Management pseudo-slots (Key History object).
+yubikey = { git = "https://github.com/rdslw/yubikey.rs.git", rev = "27f7271ffcadc40a1bef7f15e1612cd45ec69a78" }
